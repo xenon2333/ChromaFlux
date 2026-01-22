@@ -1,0 +1,44 @@
+﻿//wallpaper 壁纸
+namespace win.ui.wallpaper;
+embed = function(winform){
+	if(!winform || !winform.hwnd) return null, "无效的窗体对象";
+	// 查找桌面程序管理器窗口
+	var hProgman = ..win.find("Progman");
+	if(!hProgman) return null, "未找到Progman窗口";
+	// 向Progman发送0x52c消息，触发Windows创建用于分层的WorkerW窗口
+	::SendMessageTimeout(hProgman, 0x52c, null, null, 0, 1000, 0);
+	// 枚举所有顶层窗口以寻找目标 WorkerW
+	var hWorkerW;
+	..win.enum(function(hwnd){
+		if(..win.findEx(hwnd, 0, "SHELLDLL_DefView")){
+			hWorkerW = ..win.findEx(null, hwnd, "WorkerW");
+			if(hWorkerW) return false;
+		}
+		return true;
+	});
+	if(!hWorkerW) return null, "未找到WorkerW容器";
+	// 将窗口嵌入WorkerW
+	..win.show(hWorkerW, true); 
+	var hOldParent = ..win.setParent(winform.hwnd, hWorkerW);
+	if(!hOldParent) return null, "设置桌面父窗口失败";
+	winform.hOldParent = hOldParent;
+	return true;
+}
+restore = function(winform){
+	if(!winform || !winform.hwnd) return null, "无效的窗体对象";
+	if(winform.hOldParent){
+		..win.setParent(winform.hwnd, winform.hOldParent);
+		winform.hOldParent = null;
+	}
+	else
+		..win.setParent(winform.hwnd, 0);
+	::User32.SystemParametersInfo(0x14/*_SPI_SETDESKWALLPAPER*/, 0, null, 1/*_SPIF_UPDATEINIFILE*/|2/*_SPIF_SENDWININICHANGE*/);
+	return true;
+}
+
+/*****intellisense(win.ui.wallpaper)
+.embed( = 将壁纸窗口嵌入桌面底层
+.embed(.(winform) = 参数@winform必须是一个win.form对象\n成功返回true，失败返回null,错误信息
+.restore( = 将壁纸窗口从桌面底层移出
+.restore(.(winform) = 参数@winform必须是一个win.form对象\n成功返回true，失败返回null,错误信息
+end intellisense*****/

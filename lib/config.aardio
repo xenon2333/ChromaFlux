@@ -1,0 +1,46 @@
+﻿//config 配置
+import fsys;
+import fsys.table;
+
+config = fsys.table("/config.cfg");
+//删除无关量
+for(k,v in config){
+	select(k){
+		case '_gc', 'autoStart', 'silence', 'filepath', 'managed', 'maxNum'{}
+		else
+			config[k] = null;
+	}
+}
+
+if( !config.maxNum || !math.isInteger( config.maxNum ) )
+	config.maxNum = null;
+if( config.autoStart !== true )
+	config.autoStart = false;
+if( config.silence !== true )
+	config.silence = false;
+
+//需要管理的显示器
+if( !table.count(config.managed) )
+	config.managed = {};
+
+//壁纸路径设置
+if( !table.count(config.filepath) )
+	config.filepath = {};
+var tab = config.filepath;
+for(i=1;table.count(config.filepath);1){
+	if( !io.exist(config.filepath[i],4) )
+		tab[i] = null;
+}
+config.filepath = tab;
+
+/**intellisense()
+config = 配置
+end intellisense**/
+
+/**intellisense(config)
+.maxNum = 管理的最大显示器数量
+.autoStart = 是否开机自启动
+.silence = 是否静默启动
+.managed = 需管理的显示器
+.filepath = 壁纸路径数组
+end intellisense**/

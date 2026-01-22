@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project ver="10" name="ChromaFlux" libEmbed="true" icon="\icon.ico" ui="win" output="ChromaFlux.exe" CompanyName="" FileDescription="The Fluid Canvas for Your Desktops." LegalCopyright="Copyright © Xenon 2026" ProductName="ChromaFlux" InternalName="" FileVersion="0.0.1.0122" ProductVersion="0.0.1.0122" publishDir="/dist/" dstrip="true" local="false" ignored="false">
+	<file name="main.aardio" path="main.aardio" comment="main.aardio"/>
+	<folder name="资源文件" path="res" embed="true" local="false" ignored="false">
+		<file name="blank.png" path="res\blank.png" comment="res\blank.png"/>
+	</folder>
+	<folder name="窗体文件" path="dlg" comment="目录" embed="true" local="false" ignored="false">
+		<file name="wallpaper.aardio" path="dlg\wallpaper.aardio" comment="dlg\wallpaper.aardio"/>
+		<file name="daemon.aardio" path="dlg\daemon.aardio" comment="dlg\daemon.aardio"/>
+		<file name="controlpanel.aardio" path="dlg\controlpanel.aardio" comment="dlg\controlpanel.aardio"/>
+	</folder>
+</project>

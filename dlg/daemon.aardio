@@ -1,0 +1,123 @@
+import config;
+import multiMonitors;
+import process.command;
+import win.ui;
+import win.ui.atom;
+import win.timer;
+/*DSG{{*/
+var winform = win.form(text="ChromaFlux Daemon";right=0;bottom=0)
+winform.add()
+/*}}*/
+
+/*阻止启动多个守护进程{{*/
+var uuid = "F0E8A5AA-E150-4E57-B770-CC329FA8E4EF";
+var atom, hwndConflict = win.ui.atom.find(uuid);
+if(atom){
+	if(hwndConflict){
+		::User32.PostMessage(hwndConflict, 0x4f0/*_WM_USER_CUSTOM*/, 0, 0); //触发显示实际的控制窗口
+		win.quitMessage();
+		return;
+	}
+	process.atom.delete(atom);
+}
+winform.atom(uuid);
+/*}}*/
+
+process.command.join("ChromaFlux");
+
+_version = "0.0.1-Alpha";
+_screenMaxNum := config.maxNum : 4;
+_exePath = !_STUDIO_INVOKED ? io._exepath : "\dist\ChromaFlux.exe"/*调试守护进程前务必先编译一次！*/;
+var current_monitors = {};
+var managed_windows = {};
+var is_refreshing = false;
+
+/*定时刷新显示器信息{{*/
+var updateInfo = function(){
+	var temp = {};
+	var send = {};
+	for(i=1; _screenMaxNum; 1){
+		var w, h = multiMonitors.getSize(i-1);
+		if(!w){
+			send[i] = "未使用";
+			continue;
+		}
+		temp[i-1] = true;
+		send[i] = w+"*"+h;
+	}
+	current_monitors = temp;
+	publish("Refresh", send);
+}
+var monitorTimer = win.timer(winform, 30000);//30秒轮询兜底
+monitorTimer.onTimer = function(){
+	if(!is_refreshing){
+		is_refreshing = true;
+		multiMonitors.refresh();
+		updateInfo();
+		is_refreshing = false;
+	}
+}
+monitorTimer.enable();
+monitorTimer.onTimer();
+/*}}*/
+
+/*定时控制窗口{{*/
+var daemonTimer = win.timer(winform, 5000); //5秒检查一次是否需要创建/销毁窗口
+daemonTimer.onTimer = function(){
+	var deleted = {};
+	for(i=0; _screenMaxNum-1; 1){
+		if(process.command.isAlive(i))
+			managed_windows[i] = true;
+		else
+			managed_windows[i] = null;
+		if(current_monitors[i] && config.managed[i]){
+			if(!managed_windows[i]){
+				process.execute(_exePath, {["-scrID"]:i});
+				managed_windows[i] = true;
+				win.delay(300); //让新进程有时间响应后续调用
+			}
+			var path = process.command.currentFile(i);
+			if(#config.filepath[i+1] && config.filepath[i+1] != path)
+				process.command.loadFile(i,config.filepath[i+1]);
+		}
+		elseif(managed_windows[i]){
+			deleted[i] = true;
+			managed_windows[i] = null;
+		}
+	}
+	process.command.destroy(deleted);
+	process.command.redraw(multiMonitors.getInfo());
+}
+daemonTimer.enable();
+daemonTimer.onTimer();
+/*}}*/
+
+winform.wndproc = function(hwnd, message, wParam, lParam){
+	select(message){
+		case 0x4f0/*_WM_USER_CUSTOM*/{
+			winform.loadForm("\dlg\controlpanel.aardio");
+			updateInfo();
+		}
+		case 0x7e/*_WM_DISPLAYCHANGE*/{
+			monitorTimer.onTimer();
+		}
+	}
+}
+winform.onDestroy = function(){
+	daemonTimer.disable();
+	monitorTimer.disable();
+	process.command.destroy(managed_windows);
+}
+
+subscribe("ConfigReload",function(){
+	daemonTimer.onTimer();
+});
+subscribe("Exit",function(){
+	winform.close();
+});
+
+if(_ARGV.silence == null){ //静默启动
+	winform.loadForm("\dlg\controlpanel.aardio");
+	updateInfo();
+}
+win.loopMessage();

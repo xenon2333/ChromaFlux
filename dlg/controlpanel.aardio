@@ -1,0 +1,123 @@
+import config;
+import fsys.dlg;
+import win.reg;
+import win.ui;
+import win.ui.atom;
+/*DSG{{*/
+var winform = win.form(text="ChromaFlux";right=559;bottom=289;border="dialog frame";max=false;mode="popup")
+winform.add(
+btnApply={cls="button";text="应用";left=375;top=245;right=455;bottom=275;db=1;dr=1;z=10};
+btnBrowse={cls="button";text="为选中显示器设置壁纸...";left=375;top=205;right=545;bottom=235;z=5};
+btnClose={cls="button";text="关闭";left=465;top=245;right=545;bottom=275;db=1;dr=1;z=11};
+btnExit={cls="button";text="退出程序";left=275;top=245;right=365;bottom=275;db=1;dr=1;z=9};
+btnReset={cls="button";text="重置选中";left=275;top=205;right=365;bottom=235;db=1;dr=1;z=4};
+btnResetAll={cls="button";text="重置所有";left=175;top=205;right=265;bottom=235;db=1;dr=1;z=3};
+btnWeb={cls="button";text="程序主页";left=175;top=245;right=265;bottom=275;db=1;dr=1;z=8};
+chkAutostart={cls="checkbox";text="随系统启动自启";left=20;top=210;right=140;bottom=230;z=6};
+chkSilence={cls="checkbox";text="静默启动";left=20;top=244;right=120;bottom=264;z=7};
+listMonitors={cls="listview";left=15;top=30;right=545;bottom=190;checkbox=1;edge=1;fullRow=1;z=2};
+static={cls="static";text="显示器列表（勾选则在对应显示器上展示壁纸）";left=15;top=5;right=335;bottom=25;transparent=1;z=1}
+)
+/*}}*/
+
+if(!winform.parent) return;
+
+/*阻止启动多个控制窗口{{*/
+var uuid = "5524A42C-8EFE-46F4-83D9-C40F16611CE9";
+var atom, hwndConflict = win.ui.atom.find(uuid);
+if(atom){
+	if(hwndConflict){
+		win.setForeground(hwndConflict);
+		return;
+	}
+	process.atom.delete(atom);
+}
+winform.atom(uuid);
+/*}}*/
+
+//初始化
+winform.listMonitors.columns = {
+	{"名称"; 90};
+	{"分辨率"; 70};
+	{"壁纸文件路径"; -1}
+}
+var items = {};
+var checked = {};
+for(i=1;_screenMaxNum;1){
+	if(i == 1)
+		table.push(items,{"主显示器"; ""; config.filepath[i]});
+	else
+		table.push(items,{"副显示器"+(i-1); ""; config.filepath[i]});
+	if(config.managed[i-1])
+		table.push(checked,i);
+}
+winform.text += " "+_version;
+winform.listMonitors.items = items;
+winform.listMonitors.checked = checked;
+winform.chkAutostart.checked = config.autoStart;
+winform.chkSilence.checked = config.silence;
+
+winform.btnBrowse.oncommand = function(){
+	var selIndex = winform.listMonitors.selIndex;
+	if(!selIndex) return winform.msgbox("请先在列表中点选一个显示器");
+	var path = fsys.dlg.open("所有支持的文件|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.mp4;*.mkv;*.webm;*.mov;*.flv;*.avi|图片|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp|视频|*.mp4;*.mkv;*.webm;*.mov;*.flv;*.avi","选择壁纸",,winform);
+	if(path)
+		winform.listMonitors.setItemText(path, selIndex, 3);
+}
+winform.btnResetAll.oncommand = function(){
+	if(!winform.msgboxTest("确定重置所有显示器的壁纸设置吗？","提示")) return;
+	for(i=1; _screenMaxNum; 1)
+		winform.listMonitors.setItemText(,i,3);
+}
+winform.btnReset.oncommand = function(){
+	var selIndex = winform.listMonitors.selIndex;
+	if(!selIndex) return winform.msgbox("请先在列表中点选一个显示器");
+	if(!winform.msgboxTest("确定重置当前选中显示器的壁纸设置吗？","提示")) return;
+	winform.listMonitors.setItemText(,,3);
+}
+winform.btnApply.oncommand = function(){
+	//保存壁纸路径
+	for(i=1; _screenMaxNum; 1)
+		config.filepath[i] = winform.listMonitors.items[i][3];
+	//保存显示器设置
+	var checked = winform.listMonitors.checked;
+	var temp = {};
+	for(i=1; #checked; 1)
+		temp[checked[i]-1] = true;
+	if(table.count(temp) == 0 && !winform.msgboxTest("未勾选任何显示器，是否继续？","提示")) return;
+	config.managed = temp;
+	//保存开机启动设置
+	var reg = win.reg("HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run");
+	if(winform.chkAutostart.checked){
+		var path = '"'+io.fullpath(_exePath)+'"';
+		if(winform.chkSilence.checked)
+			path += " -silence";
+		reg.setSzValue("ChromaFlux",path);
+	}
+	else
+		reg.delValue("ChromaFlux");
+	config.autoStart = winform.chkAutostart.checked;
+	config.silence = winform.chkSilence.checked;
+	config.save();
+	publish("ConfigReload");
+}
+winform.btnWeb.oncommand = function(){
+	process.openUrl("https://github.com/xenon2333/ChromaFlux");
+}
+winform.btnExit.oncommand = function(){
+	if(winform.msgboxTest("确定要完全退出程序（包括后台运行的壁纸窗口）？")){
+		publish("Exit");
+		winform.close();
+	}
+}
+winform.btnClose.oncommand = function(){
+	winform.close();
+}
+
+subscribe("Refresh",function(rec){
+	for(i=1;_screenMaxNum;1)
+		winform.listMonitors.setItemText(rec[i],i,2);
+});
+
+win.setTopmost(winform.hwnd);
+win.setForeground(winform.hwnd);

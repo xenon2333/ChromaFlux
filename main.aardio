@@ -1,0 +1,5 @@
+if(!_ARGV.standalone && !_ARGV.scrID){
+	loadcodex("\dlg\daemon.aardio");
+	return;
+}
+loadcodex("\dlg\wallpaper.aardio");

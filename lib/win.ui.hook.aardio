@@ -1,0 +1,49 @@
+﻿//WinEvent钩子
+namespace win.ui {
+
+class hook{
+	ctor(proc, eventMin, eventMax, idProcess, idThread, flags){
+		this.eventMin = eventMin : 0x1/*_EVENT_MIN*/;
+		this.eventMax = eventMax : 0x7FFFFFFF/*_EVENT_MAX*/;
+		this.idProcess = idProcess : 0;
+		this.idThread = idThread : 0;
+		this.flags = (flags : 0) & 0x3; // 仅限 OUTOFCONTEXT 和 SKIPOWN 组合
+		this._proc_c = ..raw.tostdcall(proc, "void(ptr hWinEventHook, int event, addr hwnd, int idObject, int idChild, int dwEventThread, int dwmsEventTime)");
+		this.hHook = SetWinEventHook(this.eventMin, this.eventMax, null, this._proc_c, this.idProcess, this.idThread, this.flags);
+		if(!this.hHook)
+			return null, "设置钩子失败，请检查传入参数是否正确";
+		..table.gc(this, "close");
+	}; 
+	close = function(){
+		if(this.hHook){
+			UnhookWinEvent(this.hwnd);
+			this.hHook = null;
+		}
+	};
+}
+
+}
+namespace win.ui.hook;
+// 声明API，用法请参考 https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwineventhook
+SetWinEventHook = ::User32.api("SetWinEventHook","ptr(int eventMin, int eventMax,ptr hmodWinEventProc, ptr pfnWinEventProc, int idProcess, int idThread, int dwFlags)");
+UnhookWinEvent = ::User32.api("UnhookWinEvent","bool(ptr hWinEventHook)");
+
+/***intellisense(win.ui)
+hook = WinEvent钩子
+hook( = 创建WinEvent钩子，成功返回钩子对象，失败返回null
+hook(proc,eventMin,eventMax,idProcess,idThread,flags) = @.hook(function(hHook, event, hwnd, idObject, idChild, dwThread, dwTime){\n	/*请务必保留钩子实例的引用，否则会被垃圾回收导致钩子失效*/\n	__\n}, /*除回调函数外所有参数可选，用法请参考源码*/);
+hook().close() = 释放钩子\n此对象支持自动释放，无需手动调用
+end intellisense***/
+
+// 更多可监听的事件请参考 https://learn.microsoft.com/en-us/windows/win32/winauto/event-constants
+/***intellisense()
+_EVENT_MIN = @0x1/*_EVENT_MIN*/
+_EVENT_SYSTEM_FOREGROUND = @0x0003/*_EVENT_SYSTEM_FOREGROUND*/
+_EVENT_SYSTEM_DESKTOPSWITCH = @0x0020/*EVENT_SYSTEM_DESKTOPSWITCH*/
+_EVENT_OBJECT_LOCATIONCHANGE = @0x800B/*_EVENT_OBJECT_LOCATIONCHANGE*/
+_EVENT_MAX = @0x7FFFFFFF/*_EVENT_MAX*/
+_WINEVENT_OUTOFCONTEXT = @0x0/*WINEVENT_OUTOFCONTEXT*/
+_WINEVENT_SKIPOWNTHREAD = @0x1/*WINEVENT_SKIPOWNTHREAD*/
+_WINEVENT_SKIPOWNPROCESS = @0x2/*WINEVENT_SKIPOWNPROCESS*/
+_WINEVENT_INCONTEXT = @0x4/*WINEVENT_INCONTEXT*/
+end intellisense***/
