@@ -25,7 +25,6 @@ winform.atom(uuid);
 
 process.command.join("ChromaFlux");
 
-_version = "0.0.1-Alpha";
 _screenMaxNum := config.maxNum : 4;
 _exePath = !_STUDIO_INVOKED ? io._exepath : "\dist\ChromaFlux.exe"/*调试守护进程前务必先编译一次！*/;
 var current_monitors = {};
@@ -72,7 +71,7 @@ daemonTimer.onTimer = function(){
 			managed_windows[i] = null;
 		if(current_monitors[i] && config.managed[i]){
 			if(!managed_windows[i]){
-				process.execute(_exePath, {["-scrID"]:i});
+				process.execute(_exePath, {["-display"]:i});
 				managed_windows[i] = true;
 				win.delay(300); //让新进程有时间响应后续调用
 			}
@@ -116,7 +115,7 @@ subscribe("Exit",function(){
 	winform.close();
 });
 
-if(_ARGV.silence == null){ //静默启动
+if(_ARGV.silence == null){ //非静默启动
 	winform.loadForm("\dlg\controlpanel.aardio");
 	updateInfo();
 }

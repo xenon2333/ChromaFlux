@@ -1,5 +1,10 @@
-if(!_ARGV.standalone && !_ARGV.scrID){
+_version = "0.0.2-Alpha";
+if(!_ARGV.standalone && !_ARGV.cli && !_ARGV.display){
 	loadcodex("\dlg\daemon.aardio");
 	return;
 }
-loadcodex("\dlg\wallpaper.aardio");
+if(_ARGV.cli){
+	loadcodex("\dlg\cli.aardio");
+	return;
+}
+loadcodex("\dlg\renderer.aardio");
