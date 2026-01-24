@@ -80,9 +80,9 @@ loadFile = function(filePath){
 
 //调试用，发布时不会编译
 if(_STUDIO_INVOKED){
-	index = "0";
+	index = "1";
 	filepath = "/test.mp4";
-	is_standalone = false;
+	is_standalone = true;
 }
 
 index = tonumber(index : _ARGV.display);
@@ -166,7 +166,7 @@ var checkCovered = function(){
 	winex.enumTop(function(hwnd){
 		if(!winex.isVisible(hwnd) || win.isIconic(hwnd)) return; //忽略不可见和最小化的窗口
 		var cls = win.getClass(hwnd);
-		if(cls == "WorkerW") return false; //遇到底层WorkerW则停止枚举
+		if(cls == "WorkerW" || cls == "Progman") return false; //遇到底层WorkerW则停止枚举
 		rc = win.getRect(hwnd, true);
 		if(rc.left <= screenRW.left && rc.top <= screenRW.top && rc.right >= screenRW.right && rc.bottom >= screenRW.bottom){
 			isCovered = true; //窗口遮挡桌面自动暂停，同时停止枚举

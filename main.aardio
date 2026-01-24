@@ -1,4 +1,4 @@
-_version = "0.0.2-Alpha";
+_version = "0.1.0";
 if(!_ARGV.standalone && !_ARGV.cli && !_ARGV.display){
 	loadcodex("\dlg\daemon.aardio");
 	return;

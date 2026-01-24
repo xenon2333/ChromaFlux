@@ -2,30 +2,41 @@
 namespace win.ui.wallpaper;
 embed = function(winform){
 	if(!winform || !winform.hwnd) return null, "无效的窗体对象";
+	var hProgman, hWorkerW;
 	// 查找桌面程序管理器窗口
-	var hProgman = ..win.find("Progman");
+	hProgman = ..win.find("Progman");
 	if(!hProgman) return null, "未找到Progman窗口";
-	// 向Progman发送0x52c消息，触发Windows创建用于分层的WorkerW窗口
-	::SendMessageTimeout(hProgman, 0x52c, null, null, 0, 1000, 0);
+	// 向 Progman 发送 0x52c 消息，触发Windows创建用于分层的 WorkerW 窗口
+	if(_WIN10_LATER)
+		::SendMessageTimeout(hProgman, 0x52c, topointer(0xd), topointer(0x1), 0, 1000, 0); // 部分系统不响应无 wParam 和 lParam 的 0x52c 消息
+	else
+		::SendMessageTimeout(hProgman, 0x52c, null, null, 0, 1000, 0);
 	// 枚举所有顶层窗口以寻找目标 WorkerW
-	var hWorkerW;
 	..win.enum(function(hwnd){
 		if(..win.findEx(hwnd, 0, "SHELLDLL_DefView")){
-			hWorkerW = ..win.findEx(null, hwnd, "WorkerW");
-			if(hWorkerW) return false;
+			hWorkerW = ..win.findEx(null, hwnd, "WorkerW"); // 一般情况下 WorkerW 紧邻 SHELLDLL_DefView，与 Progman 同级
+			return false;
 		}
 		return true;
 	});
+	_WIN11_24H2_LATER = !hWorkerW; // 如果没找到说明是Win11 24H2以后的版本，WorkerW 与 SHELLDLL_DefView 在同一层级，都是 Progman 的子窗口
+	hWorkerW := ..win.findEx(hProgman, 0, "WorkerW");
 	if(!hWorkerW) return null, "未找到WorkerW容器";
-	// 将窗口嵌入WorkerW
-	..win.show(hWorkerW, true); 
+	// 将窗口嵌入 WorkerW
+	..win.show(hWorkerW, true);
 	var hOldParent = ..win.setParent(winform.hwnd, hWorkerW);
 	if(!hOldParent) return null, "设置桌面父窗口失败";
 	winform.hOldParent = hOldParent;
+	if(_WIN11_24H2_LATER){
+		// 需要设置 WS_EX_LAYERED 并将透明度指定为 0xff （不透明）
+		::SetWindowLong(winform.hwnd, -20/*_GWL_EXSTYLE*/, ::GetWindowLong(winform.hwnd, -20/*_GWL_EXSTYLE*/) | 0x80000/*_WS_EX_LAYERED*/);
+		::User32.SetLayeredWindowAttributes(winform.hwnd, 0, 0xff, 0x2/*_LWA_ALPHA*/);
+	}
 	return true;
 }
 restore = function(winform){
 	if(!winform || !winform.hwnd) return null, "无效的窗体对象";
+	::SetWindowLong(winform.hwnd, -20/*_GWL_EXSTYLE*/, ::GetWindowLong(winform.hwnd, -20/*_GWL_EXSTYLE*/) & ~0x80000/*_WS_EX_LAYERED*/);
 	if(winform.hOldParent){
 		..win.setParent(winform.hwnd, winform.hOldParent);
 		winform.hOldParent = null;
@@ -41,4 +52,8 @@ restore = function(winform){
 .embed(.(winform) = 参数@winform必须是一个win.form对象\n成功返回true，失败返回null,错误信息
 .restore( = 将壁纸窗口从桌面底层移出
 .restore(.(winform) = 参数@winform必须是一个win.form对象\n成功返回true，失败返回null,错误信息
+end intellisense*****/
+
+/*****intellisense()
+_WIN11_24H2_LATER = 系统是否是 Windows 11 24H2 以后版本，需要调用 embed 后才有值
 end intellisense*****/

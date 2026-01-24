@@ -119,5 +119,5 @@ subscribe("Refresh",function(rec){
 		winform.listMonitors.setItemText(rec[i],i,2);
 });
 
-win.setTopmost(winform.hwnd);
+winform.show();
 win.setForeground(winform.hwnd);

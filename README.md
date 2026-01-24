@@ -1,8 +1,7 @@
 ChromaFlux
 ---
-![GitHub License](https://img.shields.io/github/license/xenon2333/ChromaFlux)
-![Platform: Windows](https://img.shields.io/badge/Platform-Windows-green.svg)
-![Status: Alpha](https://img.shields.io/badge/Status-Alpha-orange.svg)
+[![GitHub License](https://img.shields.io/github/license/xenon2333/ChromaFlux)](LICENSE)
+[![Platform: Windows](https://img.shields.io/badge/Platform-Windows-green.svg)]()
 
 The Fluid Canvas for Your Desktops.  
 ChromaFlux 是一个简单的动态壁纸软件。
@@ -113,7 +112,7 @@ D--"IPC（基于WM_COPYDATA）"-->R3
 ## 反馈
 欢迎报告Bug或提出建议。
 - [Issue](https://github.com/xenon2333/ChromaFlux/issues)
-- 讨论
+- [讨论](https://meta.appinn.net/t/topic/80747)
 - Email：xenon2333@qq.com
 
 ## 捐助
