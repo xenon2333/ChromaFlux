@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<project ver="10" name="ChromaFlux" libEmbed="true" icon="\icon.ico" ui="win" output="ChromaFlux.exe" CompanyName="" FileDescription="The Fluid Canvas for Your Desktops." LegalCopyright="Copyright © Xenon 2026" ProductName="ChromaFlux" InternalName="" FileVersion="0.1.0.0124" ProductVersion="0.1.0.0124" publishDir="/dist/" dstrip="true" local="false" ignored="false">
+<project ver="10" name="ChromaFlux" libEmbed="true" icon="\icon.ico" ui="win" output="ChromaFlux.exe" CompanyName="" FileDescription="The Fluid Canvas for Your Desktops." LegalCopyright="Copyright © Xenon 2026" ProductName="ChromaFlux" InternalName="" FileVersion="0.1.1.0207" ProductVersion="0.1.1.0207" publishDir="/dist/" dstrip="true" local="false" ignored="false">
 	<file name="main.aardio" path="main.aardio" comment="main.aardio"/>
 	<folder name="资源文件" path="res" embed="true" local="false" ignored="false">
 		<file name="blank.png" path="res\blank.png" comment="res\blank.png"/>

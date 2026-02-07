@@ -99,6 +99,8 @@ winform.wndproc = function(hwnd, message, wParam, lParam){
 		}
 		case 0x7e/*_WM_DISPLAYCHANGE*/{
 			monitorTimer.onTimer();
+			win.delay(300);
+			daemonTimer.onTimer();
 		}
 	}
 }

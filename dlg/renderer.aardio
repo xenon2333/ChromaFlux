@@ -92,6 +92,11 @@ filepath := _ARGV.filepath;
 if(_ARGV.standalone)
 	is_standalone = true;
 
+var ok, err = win.ui.wallpaper.embed(winform);
+if(!ok)
+	return win.msgboxErr(err:"未知错误", "错误");
+var hParent = win.getParent(winform.hwnd);
+
 process.command.join("ChromaFlux");
 var cmd = process.command();
 if(is_standalone){ //独立运行，不响应守护进程
@@ -110,7 +115,9 @@ if(is_standalone){ //独立运行，不响应守护进程
 				win.msgboxTimeout("指定的屏幕未连接，程序将临时切换到主屏幕显示", "提示", 5000);
 			workIndex = 0;
 		}
-		winform.setPos(multiMonitors.getRect(workIndex).xywh());
+		var rM = multiMonitors.getRect(workIndex);
+		win.toClientRect(hParent, rM);
+		winform.setPos(rM.xywh());
 		screenRW = multiMonitors.getRect(workIndex, true);
 	}
 	mTimer.enable();
@@ -137,7 +144,9 @@ if(is_standalone){ //独立运行，不响应守护进程
 else{ //由守护进程控制
 	cmd.redraw = function(scrInfo){
 		var rM = scrInfo[index].rM;
-		winform.setPos(rM.left, rM.top, rM.right - rM.left, rM.bottom - rM.top);
+		rM = ::RECT(rM.left, rM.top, rM.right, rM.bottom);
+		win.toClientRect(hParent, rM);
+		winform.setPos(rM.xywh());
 		screenRW = scrInfo[index].rW;
 	}
 	cmd.currentFile = function(id){
@@ -214,10 +223,6 @@ winform.onDestroy = function(){
 	hook_system.close();
 	hook_object.close();
 }
-
-var ok, err = win.ui.wallpaper.embed(winform);
-if(!ok)
-	return win.msgboxErr(err:"未知错误", "错误");
 
 winform.show();
 win.loopMessage();

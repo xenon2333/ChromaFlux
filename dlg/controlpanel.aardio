@@ -51,7 +51,7 @@ for(i=1;_screenMaxNum;1){
 	if(config.managed[i-1])
 		table.push(checked,i);
 }
-winform.text += " "+_version;
+winform.text += " "+(_version:"");
 winform.listMonitors.items = items;
 winform.listMonitors.checked = checked;
 winform.chkAutostart.checked = config.autoStart;
