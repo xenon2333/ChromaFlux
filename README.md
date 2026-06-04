@@ -41,6 +41,7 @@ ChromaFlux 提供了简单的命令行接口，便于自定义脚本使用（可
 - `-display`：指定显示器编号，0对应主显示器
 - `-filepath`：指定要加载的壁纸
 - `-standalone`：独立运行，不会被守护进程接管
+- `-exclude`：需要排除的进程名称列表，详细说明请参考[配置文件](#配置文件)
 - `-cli`：用于向独立渲染进程发出指令
 - `-silence`：静默启动守护进程，不显示控制窗口
 
@@ -52,6 +53,8 @@ ChromaFlux 提供了简单的命令行接口，便于自定义脚本使用（可
 chromaflux -display 0
 # 独立使用，不会被守护进程接管，仅能通过cli控制
 chromaflux -standalone -display 0 -filepath "E:\Wallpaper\example.mp4"
+# 独立使用，同时排除开始菜单（即显示开始菜单时不自动暂停播放）
+chromaflux -standalone -display 0 -filepath "E:\Wallpaper\example.mp4" -exclude="StartMenuExperienceHost.exe"
 
 # 修改独立进程显示的位置（主显示器->副显示器1）
 chromaflux -cli -display 0 -move 1
@@ -72,6 +75,7 @@ chromaflux -cli -display 0 -stop
 {
 autoStart=true;
 silence=true;
+excludedList="StartMenuExperienceHost.exe,example.exe";
 maxNum=4;
 managed={[0]=true;[1]=false};
 filepath={[1]="E:\Wallpaper\example.mp4"}
@@ -80,6 +84,7 @@ filepath={[1]="E:\Wallpaper\example.mp4"}
 
 - `autoStart`：是否开机自启动
 - `silence`：是否静默启动，仅针对开机自启
+- `excludedList`：当遮挡桌面的窗口所属进程名与名单匹配时，不自动暂停，用于部分透明窗口。示例中为开始菜单，各个进程名称之间以`,`分隔。
 - `maxNum`：接管显示器的最大数量（默认为4），**只能通过配置文件覆盖**
 - `managed`：需要接管的显示器编号，**键从0开始**（0对应主显示器）
 - `filepath`：每个显示器要加载的壁纸路径，**键从1开始**
@@ -111,7 +116,7 @@ D--"IPC（基于WM_COPYDATA）"-->R3
 
 ## 反馈
 欢迎报告Bug或提出建议。
-- [Issue](https://github.com/xenon2333/ChromaFlux/issues)
+- [Issues](https://github.com/xenon2333/ChromaFlux/issues)
 - [讨论](https://meta.appinn.net/t/topic/80747)
 - Email：xenon2333@qq.com
 

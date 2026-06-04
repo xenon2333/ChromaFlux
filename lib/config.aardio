@@ -6,7 +6,7 @@ config = fsys.table("/config.cfg");
 //删除无关量
 for(k,v in config){
 	select(k){
-		case '_gc', 'autoStart', 'silence', 'filepath', 'managed', 'maxNum'{}
+		case '_gc', 'autoStart', 'silence', 'filepath', 'managed', 'maxNum', 'excludedList'{}
 		else
 			config[k] = null;
 	}
@@ -43,4 +43,5 @@ end intellisense**/
 .silence = 是否静默启动
 .managed = 需管理的显示器
 .filepath = 壁纸路径数组
+.excludedList = 排除进程列表，以英文逗号分隔
 end intellisense**/

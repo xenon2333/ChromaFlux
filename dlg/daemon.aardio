@@ -71,7 +71,7 @@ daemonTimer.onTimer = function(){
 			managed_windows[i] = null;
 		if(current_monitors[i] && config.managed[i]){
 			if(!managed_windows[i]){
-				process.execute(_exePath, {["-display"]:i});
+				process.execute(_exePath, {["-display"]:i; ["-exclude"]:config.excludedList?tostring(config.excludedList):null});
 				managed_windows[i] = true;
 				win.delay(300); //让新进程有时间响应后续调用
 			}

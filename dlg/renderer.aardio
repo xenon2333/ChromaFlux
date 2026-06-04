@@ -1,5 +1,6 @@
 import gdip.bitmap;
 import gdip.webp;
+import process;
 import process.command;
 import win.ui;
 import win.ui.hook;
@@ -83,6 +84,7 @@ if(_STUDIO_INVOKED){
 	index = "1";
 	filepath = "/test.mp4";
 	is_standalone = true;
+	exclude = "StartMenuExperienceHost.exe";
 }
 
 index = tonumber(index : _ARGV.display);
@@ -91,6 +93,8 @@ if(!math.isInteger(index) || index < 0)
 filepath := _ARGV.filepath;
 if(_ARGV.standalone)
 	is_standalone = true;
+exclude := _ARGV.exclude;
+var excludeProcesses = exclude?string.split(exclude, '<,>'):{};
 
 var ok, err = win.ui.wallpaper.embed(winform);
 if(!ok)
@@ -178,6 +182,14 @@ var checkCovered = function(){
 		if(cls == "WorkerW" || cls == "Progman") return false; //遇到底层WorkerW则停止枚举
 		rc = win.getRect(hwnd, true);
 		if(rc.left <= screenRW.left && rc.top <= screenRW.top && rc.right >= screenRW.right && rc.bottom >= screenRW.bottom){
+			if(#excludeProcesses > 0){
+				var tid, pid = win.getThreadProcessId(hwnd);
+				var path = process.getPath(pid):''; //遮挡桌面的进程路径
+				for(var i=1; #excludeProcesses; 1){
+					if(string.indexOf(path, excludeProcesses[i]))
+						return false; //匹配到排除进程即停止枚举
+				}
+			}
 			isCovered = true; //窗口遮挡桌面自动暂停，同时停止枚举
 			return false;
 		}
