@@ -16,7 +16,7 @@ class hook{
 	}; 
 	close = function(){
 		if(this.hHook){
-			UnhookWinEvent(this.hwnd);
+			UnhookWinEvent(this.hHook);
 			this.hHook = null;
 		}
 	};

@@ -54,7 +54,7 @@ chromaflux -display 0
 # 独立使用，不会被守护进程接管，仅能通过cli控制
 chromaflux -standalone -display 0 -filepath "E:\Wallpaper\example.mp4"
 # 独立使用，同时排除开始菜单（即显示开始菜单时不自动暂停播放）
-chromaflux -standalone -display 0 -filepath "E:\Wallpaper\example.mp4" -exclude "StartMenuExperienceHost.exe"
+chromaflux -standalone -display 0 -filepath "E:\Wallpaper\example.mp4" -exclude="StartMenuExperienceHost.exe"
 
 # 修改独立进程显示的位置（主显示器->副显示器1）
 chromaflux -cli -display 0 -move 1
