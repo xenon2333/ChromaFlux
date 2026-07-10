@@ -20,7 +20,7 @@ ChromaFlux 是一个简单的动态壁纸软件。
 
 ## 快速开始
 ### 下载
-前往[Releases](https://github.com/xenon2333/ChromaFlux/releases)页面下载最新的已编译版本，双击运行即可。
+前往[Releases](https://github.com/xenon2333/ChromaFlux/releases)页面下载最新的已编译版本，解压后双击运行`ChromaFluxService.exe`即可。
 
 支持Windows 10/11系统（更低版本暂未测试）
 
@@ -42,8 +42,6 @@ ChromaFlux 提供了简单的命令行接口，便于自定义脚本使用（可
 - `-filepath`：指定要加载的壁纸
 - `-standalone`：独立运行，不会被守护进程接管
 - `-exclude`：需要排除的进程名称列表，详细说明请参考[配置文件](#配置文件)
-- `-cli`：用于向独立渲染进程发出指令
-- `-silence`：静默启动守护进程，不显示控制窗口
 
 以上参数可搭配使用，程序会忽略无效的参数搭配。  
 示例：
@@ -51,19 +49,20 @@ ChromaFlux 提供了简单的命令行接口，便于自定义脚本使用（可
 # 为主显示器启动独立的渲染进程
 # 调试使用，会被守护进程接管
 chromaflux -display 0
-# 独立使用，不会被守护进程接管，仅能通过cli控制
+# 独立使用，不会被守护进程接管，仅能通过ctl控制
 chromaflux -standalone -display 0 -filepath "E:\Wallpaper\example.mp4"
 # 独立使用，同时排除开始菜单（即显示开始菜单时不自动暂停播放）
-chromaflux -standalone -display 0 -filepath "E:\Wallpaper\example.mp4" -exclude="StartMenuExperienceHost.exe"
+chromaflux -standalone -display 0 -filepath "E:\Wallpaper\example.mp4" -exclude "StartMenuExperienceHost.exe"
 
 # 修改独立进程显示的位置（主显示器->副显示器1）
-chromaflux -cli -display 0 -move 1
-
+chromafluxctl -display 0 -moveto 1
 # 要求独立进程更换主显示器的壁纸
-chromaflux -cli -display 0 -filepath "E:\Wallpaper\example.png"
-
+chromafluxctl -display 0 -set "E:\Wallpaper\example.png"
 # 停止主显示器的独立进程
-chromaflux -cli -display 0 -stop
+chromafluxctl -display 0 -stop
+
+# 静默启动守护进程，不显示控制窗口
+chromafluxservice -silence
 ```
 
 ### 配置文件
@@ -90,15 +89,16 @@ filepath={[1]="E:\Wallpaper\example.mp4"}
 - `filepath`：每个显示器要加载的壁纸路径，**键从1开始**
 
 ### 构建
-如果你想自己编译 ChromaFlux ，只需下载源代码并在aardio中打开`default.aproj`，发布（F7）即可。
+如果你想自己编译 ChromaFlux ，只需下载源代码并在aardio中打开`default.aproj`，发布（F7）即可。  
+可以切换到其它工程以编译 ChromaFluxService 等。
 
 ### 架构概览
 ```mermaid
 graph TD
-D["<b>ChromaFlux Daemon</b><br/><small>(后台进程，单实例)</small><br/>• 状态监控<br/>• 配置管理<br/>• 进程管理"]
-R1["<b>ChromaFlux Renderer</b><br/><small>(独立进程，每个显示器一个)</small><br/>• 壁纸渲染 <br/>• 遮挡检测"]
-R2["<b>ChromaFlux Renderer</b><br/><small>(独立进程，每个显示器一个)</small><br/>• 壁纸渲染 <br/>• 遮挡检测"]
-R3["<b>ChromaFlux Renderer</b><br/><small>(独立进程，每个显示器一个)</small><br/>• 壁纸渲染 <br/>• 遮挡检测"]
+D["<b>ChromaFlux Service</b><br/><small>(后台进程，单实例)</small><br/>• 状态监控<br/>• 配置管理<br/>• 进程管理"]
+R1["<b>ChromaFlux Render</b><br/><small>(独立进程，每个显示器一个)</small><br/>• 壁纸渲染 <br/>• 遮挡检测"]
+R2["<b>ChromaFlux Render</b><br/><small>(独立进程，每个显示器一个)</small><br/>• 壁纸渲染 <br/>• 遮挡检测"]
+R3["<b>ChromaFlux Render</b><br/><small>(独立进程，每个显示器一个)</small><br/>• 壁纸渲染 <br/>• 遮挡检测"]
 D--"IPC（基于WM_COPYDATA）"-->R1
 D--"IPC（基于WM_COPYDATA）"-->R2
 D--"IPC（基于WM_COPYDATA）"-->R3

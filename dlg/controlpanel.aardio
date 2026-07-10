@@ -89,7 +89,7 @@ winform.btnApply.oncommand = function(){
 	//保存开机启动设置
 	var reg = win.reg("HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run");
 	if(winform.chkAutostart.checked){
-		var path = '"'+io.fullpath(_exePath)+'"';
+		var path = io._exepath;
 		if(winform.chkSilence.checked)
 			path += " -silence";
 		reg.setSzValue("ChromaFlux",path);

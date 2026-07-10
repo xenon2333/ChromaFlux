@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project ver="10" name="ChromaFluxCtl" libEmbed="true" icon="..." ui="win" output="ChromaFluxCtl.exe" CompanyName="" FileDescription="The Controller of ChromaFlux." LegalCopyright="Copyright © Xenon 2026" ProductName="ChromaFlux" InternalName="ChromaFluxCtl" FileVersion="0.1.2.0604" ProductVersion="0.1.2.0604" publishDir="/dist/" dstrip="true" local="false" ignored="false">
+	<file name="main.aardio" path="ctl.main.aardio" comment="ctl.main.aardio"/>
+</project>

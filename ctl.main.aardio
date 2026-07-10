@@ -1,0 +1,10 @@
+import process.command;
+process.command.join("ChromaFlux");
+var index = _ARGV.display : 0;
+
+if(_ARGV.stop)
+	return process.command.exit(index);
+if(_ARGV.moveto)
+	return process.command.move(index, _ARGV.moveto);
+if(_ARGV.set)
+	return process.command.reload(index, _ARGV.set);
